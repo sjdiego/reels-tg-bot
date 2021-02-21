@@ -78,7 +78,7 @@ func downloadFile(url string, downloadPath string) error {
 		fmt.Printf("Error downloading file for '%s', status: %d", url, resp.StatusCode)
 		return err
 	}
-	fmt.Printf("Downloaded file for '%s', status: %d", url, resp.StatusCode)
+	fmt.Printf("Downloaded file for '%s', status: %d\n\n", url, resp.StatusCode)
 	defer resp.Body.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {

@@ -31,16 +31,20 @@ func Run() {
 		re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9]{11})`)
 		code := re.FindStringSubmatch(strings.TrimSpace(update.Message.Text))
 
-		if len(code) > 1 {
+		if len(code) > 1 && !update.Message.From.IsBot {
 			message := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
 				fmt.Sprintf("Starting download from %s", update.Message.Text),
 			)
-			bot.Send(message)
+			sentMessage, _ := bot.Send(message)
 
 			videoPath := instagram.Get(code[1])
 			videoConfig := tgbotapi.NewVideoUpload(update.Message.Chat.ID, videoPath)
+			fmt.Printf("Sending video to %s (ID: %d)\n", update.Message.From.FirstName, update.Message.From.ID)
 			bot.Send(videoConfig)
+
+			deleteConfig := tgbotapi.NewDeleteMessage(update.Message.Chat.ID, sentMessage.MessageID)
+			bot.DeleteMessage(deleteConfig)
 		}
 	}
 }
