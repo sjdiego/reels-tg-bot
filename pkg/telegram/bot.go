@@ -28,13 +28,13 @@ func Run() {
 		log.Printf("<%v> %s\n\n", update.Message.From.ID, update.Message.Text)
 
 		// https://www.instagram.com/reel/CLjJYuhFs24/
-		re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9]{11})`)
+		re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9-]{11})`)
 		code := re.FindStringSubmatch(strings.TrimSpace(update.Message.Text))
 
 		if len(code) > 1 && !update.Message.From.IsBot {
 			message := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				fmt.Sprintf("Starting download from %s", update.Message.Text),
+				fmt.Sprintf("Starting download for %s", code),
 			)
 			sentMessage, _ := bot.Send(message)
 

@@ -71,7 +71,7 @@ func makeRequest(code string) (string, bool) {
 }
 
 func downloadFile(url string, downloadPath string) error {
-	fmt.Println(fmt.Sprintf("Trying to download file from %s", url))
+	fmt.Println("Trying to download video...")
 	out, err := os.Create(downloadPath)
 	if err != nil {
 		return err
@@ -79,10 +79,10 @@ func downloadFile(url string, downloadPath string) error {
 	defer out.Close()
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("Error downloading file for '%s', status: %d", url, resp.StatusCode)
+		fmt.Printf("Error downloading file for '%s', status: %d\n", url, resp.StatusCode)
 		return err
 	}
-	fmt.Printf("Downloaded file for '%s', status: %d\n\n", url, resp.StatusCode)
+	fmt.Printf("Download successful, status: %d\n", resp.StatusCode)
 	defer resp.Body.Close()
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
