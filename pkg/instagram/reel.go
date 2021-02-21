@@ -63,7 +63,11 @@ func makeRequest(code string) (string, bool) {
 
 	result := gjson.GetBytes(body, "graphql.shortcode_media.video_url")
 
-	return result.Str, true
+	if len(result.Str) > 0 {
+		return result.Str, true
+	}
+
+	return result.Str, false
 }
 
 func downloadFile(url string, downloadPath string) error {
