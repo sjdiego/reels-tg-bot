@@ -84,7 +84,12 @@ func downloadFile(url string, videoPath string) error {
 		return err
 	}
 	defer out.Close()
-	resp, err := http.Get(url)
+
+	httpClient := http.Client{Timeout: 3 * time.Second}
+	request, _ := http.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("User-Agent", userAgent)
+	resp, err := httpClient.Do(request)
+
 	if err != nil {
 		fmt.Printf("Error downloading file for '%s', status: %d\n", url, resp.StatusCode)
 		return err
