@@ -25,22 +25,23 @@ func Get(code string) string {
 		fmt.Println(fmt.Sprintf("Error getting video: %v", videoURL))
 	}
 
-	downloadPath := "/tmp/" + code
+	videoPath := "/tmp/" + code
 	tmpFolder := env.GetEnv("TMP_FOLDER")
 	if len(tmpFolder) > 1 {
-		downloadPath = strings.TrimRight(tmpFolder, "/") + "/" + code
+		videoPath = strings.TrimRight(tmpFolder, "/") + "/" + code
 	}
 
-	if !fileExists(downloadPath) {
-		err := downloadFile(videoURL, downloadPath)
+	if !fileExists(videoPath) {
+		err := downloadFile(videoURL, videoPath)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Error downloading video: %s", err.Error()))
+			videoPath = ""
 		}
 	} else {
 		fmt.Println(fmt.Sprintf("File already exists. Skipping download."))
 	}
 
-	return downloadPath
+	return videoPath
 }
 
 func makeRequest(code string) (string, bool) {
@@ -76,9 +77,9 @@ func makeRequest(code string) (string, bool) {
 	return result.Str, false
 }
 
-func downloadFile(url string, downloadPath string) error {
+func downloadFile(url string, videoPath string) error {
 	fmt.Println("Trying to download video...")
-	out, err := os.Create(downloadPath)
+	out, err := os.Create(videoPath)
 	if err != nil {
 		return err
 	}

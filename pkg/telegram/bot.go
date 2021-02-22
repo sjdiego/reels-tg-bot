@@ -34,17 +34,20 @@ func Run() {
 		if len(code) > 1 && !update.Message.From.IsBot {
 			message := tgbotapi.NewMessage(
 				update.Message.Chat.ID,
-				fmt.Sprintf("Starting download for %s", code),
+				fmt.Sprintf("Starting download for %s", code[0]),
 			)
 			sentMessage, _ := bot.Send(message)
 
 			videoPath := instagram.Get(code[1])
-			videoConfig := tgbotapi.NewVideoUpload(update.Message.Chat.ID, videoPath)
-			fmt.Printf("Sending video to %s (ID: %d)\n", update.Message.From.FirstName, update.Message.From.ID)
-			bot.Send(videoConfig)
 
-			deleteConfig := tgbotapi.NewDeleteMessage(update.Message.Chat.ID, sentMessage.MessageID)
-			bot.DeleteMessage(deleteConfig)
+			if len(videoPath) > 0 {
+				videoConfig := tgbotapi.NewVideoUpload(update.Message.Chat.ID, videoPath)
+				fmt.Printf("Sending video to %s (ID: %d)\n", update.Message.From.FirstName, update.Message.From.ID)
+				bot.Send(videoConfig)
+
+				deleteConfig := tgbotapi.NewDeleteMessage(update.Message.Chat.ID, sentMessage.MessageID)
+				bot.DeleteMessage(deleteConfig)
+			}
 		}
 	}
 }
