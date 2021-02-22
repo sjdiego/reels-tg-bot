@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"reels-tg-bot/pkg/env"
+	"strings"
 	"time"
 
 	"github.com/tidwall/gjson"
@@ -24,6 +26,10 @@ func Get(code string) string {
 	}
 
 	downloadPath := "/tmp/" + code
+	tmpFolder := env.GetEnv("TMP_FOLDER")
+	if len(tmpFolder) > 1 {
+		downloadPath = strings.TrimRight(tmpFolder, "/") + "/" + code
+	}
 
 	if !fileExists(downloadPath) {
 		err := downloadFile(videoURL, downloadPath)

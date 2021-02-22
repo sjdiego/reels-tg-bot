@@ -25,7 +25,7 @@ func Run() {
 	updates, err := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		log.Printf("<%v> %s\n\n", update.Message.From.ID, update.Message.Text)
+		log.Printf("<%d> %s\n\n", update.Message.From.ID, update.Message.Text)
 
 		// https://www.instagram.com/reel/CLjJYuhFs24/
 		re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9-]{11})`)
