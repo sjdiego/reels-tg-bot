@@ -37,13 +37,16 @@ func handleUpdate(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) {
 		log.Printf("[%d] <%s> %s\n", msg.From.ID, msg.From.FirstName, msg.Text)
 	}
 
-	// Check if message matches with a Reels IG URL like:
-	// https://www.instagram.com/reel/CLjJYuhFs24/
-	re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9-]{11})`)
-	code := re.FindStringSubmatch(strings.TrimSpace(msg.Text))
+	// Check if message comes from authorized user
+	if len(env.GetEnv("TG_ADMIN_ID")) > 0 && env.GetEnv("TG_ADMIN_ID") == fmt.Sprint(msg.From.ID) {
+		// Check if message matches with a Reels IG URL like:
+		// https://www.instagram.com/reel/CLjJYuhFs24/
+		re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9-]{11})`)
+		code := re.FindStringSubmatch(strings.TrimSpace(msg.Text))
 
-	if len(code) > 1 && !msg.From.IsBot {
-		handleReelMessage(bot, msg, code)
+		if len(code) > 1 && !msg.From.IsBot {
+			handleReelMessage(bot, msg, code)
+		}
 	}
 }
 
