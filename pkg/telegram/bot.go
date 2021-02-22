@@ -19,44 +19,52 @@ func Run() {
 		log.Panic(err)
 	}
 
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 10
+	newUpdate := tgbotapi.NewUpdate(0)
+	newUpdate.Timeout = 10
 
-	updates, err := bot.GetUpdatesChan(u)
+	updates, err := bot.GetUpdatesChan(newUpdate)
 
 	for update := range updates {
-		u := update.Message
-
-		// Display incoming messages
-		if len(u.From.UserName) > 0 {
-			log.Printf("[%d] <%s @%s> %s\n", u.From.ID, u.From.FirstName, u.From.UserName, u.Text)
-		} else {
-			log.Printf("[%d] <%s> %s\n", u.From.ID, u.From.FirstName, u.Text)
-		}
-
-		// Check if message matches with a Reels IG URL like:
-		// https://www.instagram.com/reel/CLjJYuhFs24/
-		re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9-]{11})`)
-		code := re.FindStringSubmatch(strings.TrimSpace(u.Text))
-
-		if len(code) > 1 && !u.From.IsBot {
-			// Notify user that URL is being processed
-			message := tgbotapi.NewMessage(u.Chat.ID, fmt.Sprintf("Starting download for %s", code[0]))
-			sentMessage, _ := bot.Send(message)
-
-			// Download file and get path on filesystem
-			videoPath := instagram.Get(code[1])
-
-			// If download was successful, create Video message and send it to user
-			if len(videoPath) > 0 {
-				videoConfig := tgbotapi.NewVideoUpload(u.Chat.ID, videoPath)
-				fmt.Printf("Sending video to %s (ID: %d)\n", u.From.FirstName, u.From.ID)
-				bot.Send(videoConfig)
-			}
-
-			// Delete previous message
-			deleteConfig := tgbotapi.NewDeleteMessage(u.Chat.ID, sentMessage.MessageID)
-			bot.DeleteMessage(deleteConfig)
-		}
+		handleUpdate(bot, update.Message)
 	}
+}
+
+func handleUpdate(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) {
+	// Display incoming messages
+	if len(msg.From.UserName) > 0 {
+		log.Printf("[%d] <%s @%s> %s\n", msg.From.ID, msg.From.FirstName, msg.From.UserName, msg.Text)
+	} else {
+		log.Printf("[%d] <%s> %s\n", msg.From.ID, msg.From.FirstName, msg.Text)
+	}
+
+	// Check if message matches with a Reels IG URL like:
+	// https://www.instagram.com/reel/CLjJYuhFs24/
+	re := regexp.MustCompile(`^https?://www\.instagram\.com/reel/([A-Za-z0-9-]{11})`)
+	code := re.FindStringSubmatch(strings.TrimSpace(msg.Text))
+
+	if len(code) > 1 && !msg.From.IsBot {
+		handleReelMessage(bot, msg, code)
+	}
+}
+
+func handleReelMessage(bot *tgbotapi.BotAPI, msg *tgbotapi.Message, code []string) {
+	// Notify user that URL is being processed
+	message := tgbotapi.NewMessage(msg.Chat.ID, fmt.Sprintf("Starting download for %s", code[0]))
+	sentMessage, _ := bot.Send(message)
+
+	// Download file and get path on filesystem
+	videoPath := instagram.Get(code[1])
+
+	// If download was successful, create Video message and send it to user
+	if len(videoPath) > 0 {
+		fmt.Printf("Sending video to %s (ID: %d)\n", msg.From.FirstName, msg.From.ID)
+		chatActionConfig := tgbotapi.NewChatAction(msg.Chat.ID, tgbotapi.ChatUploadVideo)
+		bot.Send(chatActionConfig)
+		videoConfig := tgbotapi.NewVideoUpload(msg.Chat.ID, videoPath)
+		bot.Send(videoConfig)
+	}
+
+	// Delete previous message
+	deleteConfig := tgbotapi.NewDeleteMessage(msg.Chat.ID, sentMessage.MessageID)
+	bot.DeleteMessage(deleteConfig)
 }
