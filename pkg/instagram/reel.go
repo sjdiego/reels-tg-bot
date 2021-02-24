@@ -18,30 +18,31 @@ const (
 )
 
 // Get func
-func Get(code string) string {
+func Get(code string) (string, bool) {
 	videoURL, status := makeRequest(code)
 
 	if !status {
 		fmt.Println(fmt.Sprintf("Error getting video: %v", videoURL))
+		return videoURL, false
 	}
 
-	videoPath := "/tmp/" + code
+	videoPath := "/tmp/" + code + ".mp4"
 	tmpFolder := env.GetEnv("TMP_FOLDER")
 	if len(tmpFolder) > 1 {
-		videoPath = strings.TrimRight(tmpFolder, "/") + "/" + code
+		videoPath = strings.TrimRight(tmpFolder, "/") + "/" + code + ".mp4"
 	}
 
 	if !fileExists(videoPath) {
 		err := downloadFile(videoURL, videoPath)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Error downloading video: %s", err.Error()))
-			videoPath = ""
+			return err.Error(), false
 		}
 	} else {
 		fmt.Println(fmt.Sprintf("File already exists. Skipping download."))
 	}
 
-	return videoPath
+	return videoPath, true
 }
 
 func makeRequest(code string) (string, bool) {
