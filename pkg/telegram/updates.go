@@ -21,7 +21,7 @@ func HandleUpdate(bot *tgbotapi.BotAPI, msg *tgbotapi.Message) {
 
 	// Check if message comes from authorized user
 	if CheckUserAuth(msg.From.ID) && handleReelMessage(bot, msg) {
-		fmt.Printf("Video sent successfully to %d", msg.From.ID)
+		fmt.Printf("Video sent successfully to %d\n", msg.From.ID)
 	}
 }
 
