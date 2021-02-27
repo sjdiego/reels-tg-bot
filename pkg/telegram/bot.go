@@ -31,8 +31,6 @@ func Run() {
 	for update := range updates {
 		printUpdateResponse(update)
 
-		log.Println(update.UpdateID) // debug test
-
 		if update.Message != nil {
 			HandleUpdate(bot, update.Message)
 		}
