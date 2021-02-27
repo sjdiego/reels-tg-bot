@@ -39,18 +39,14 @@ func Run() {
 
 func getUpdatesFromWebhook(bot *tgbotapi.BotAPI, webhookURL string) tgbotapi.UpdatesChannel {
 	bot.RemoveWebhook() // Removes previous webhook
-	webhookInfo, err := bot.SetWebhook(tgbotapi.NewWebhook(strings.TrimRight(webhookURL, "/") + "/" + bot.Token))
+	_, err := bot.SetWebhook(tgbotapi.NewWebhook(strings.TrimRight(webhookURL, "/") + "/" + bot.Token))
 	if err != nil {
 		log.Println(err)
-	} else {
-		log.Printf("New webhook successfully set: %s\n", webhookInfo.Description)
 	}
 
 	info, err := bot.GetWebhookInfo()
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		log.Printf("Webhook URL set on: %s\n", info.URL)
 	}
 	if info.LastErrorDate != 0 {
 		log.Printf("Telegram callback failed: %s\n", info.LastErrorMessage)
